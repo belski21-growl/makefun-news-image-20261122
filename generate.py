@@ -22,6 +22,14 @@ out; the Lviv "2 killed" belongs to the separate Kryvyi Rih double-tap.
 Pillow + DejaVu do the drawing; the shipped entry only copies the
 finished PNG, so this file never runs under the grader.
 
+r3 touch-up (22 Nov ~12:10 WIB): #23 duplicate (Nigeria boat capsize,
+same event as brief #12 Bayelsa) replaced by the verified Melbourne
+1956 Olympics 70th anniversary (opened 22 Nov 1956; reunion at the MCG
+on Sunday); map pins moved (Gaza out of central Africa to the Levant
+corner, Bayelsa to the Gulf of Guinea bulge, Tehran east so Kryvyi Rih
+is no longer covered); Poland DATE CHECK corrected to Fri 20 Nov
+(top-10 majority). Region tally: AFRICA 7, OCEANIA 2.
+
 Usage: python3 generate.py [output-path]   (default: entry.png beside it)
 """
 
@@ -62,12 +70,12 @@ REGION_HUES = {
 # Story counts per region, in bar order: 36 stories in all.
 REGION_TALLY = [
     {"region": "EUROPE", "stories": 13},
-    {"region": "AFRICA", "stories": 8},
+    {"region": "AFRICA", "stories": 7},
     {"region": "MIDDLE EAST", "stories": 5},
     {"region": "AMERICAS", "stories": 3},
     {"region": "ASIA", "stories": 3},
     {"region": "GLOBAL", "stories": 3},
-    {"region": "OCEANIA", "stories": 1},
+    {"region": "OCEANIA", "stories": 2},
 ]
 
 FONT_DIR = "/usr/share/fonts/truetype/dejavu/"
@@ -203,7 +211,7 @@ EXTRA_STORIES = [
     {"text": "Russian strike hits Zaporizhzhya school", "source": "AP"},
     {"text": "Kenya wins 293,600 Saudi jobs", "source": "AP"},
     {"text": "Ghana unveils Heritage Series banknotes", "source": "AP"},
-    {"text": "Nigeria: 24 bodies after boat capsize", "source": "AP"},
+    {"text": "Melbourne marks 70 years since 1956 Olympics", "source": "AP"},
     {"text": "Tigray mayor vows elections in six months", "source": "AP"},
     {"text": "Sahel states restart West Africa talks", "source": "AP"},
     {"text": "DRC enacts constitutional reform law", "source": "AP"},
@@ -222,7 +230,7 @@ EXTRA_STORIES = [
 # DATE CHECK: big stories deliberately LEFT OUT — not Sunday news.
 LEFT_OUT = [
     {"story": "Peru earthquake", "date": "Fri 20 Nov"},
-    {"story": "Russian missiles land in Poland", "date": "Thu 19 Nov"},
+    {"story": "Russian missiles land in Poland", "date": "Fri 20 Nov"},
     {"story": "Kerch Bridge strikes", "date": "earlier this week"},
     {"story": "Trump-Xi-Putin Shenzhen summit", "date": "Thu 19 Nov"},
     {"story": "Nvidia posts $115.8bn quarter", "date": "Tue 17 Nov"},
@@ -252,15 +260,15 @@ PINS = [
     {"story": 1, "lon": 30.7, "lat": 36.9, "dx": -14, "dy": -10},
     {"story": 2, "lon": 30.52, "lat": 50.45, "dx": -14, "dy": -10},
     {"story": 3, "lon": 50.6, "lat": 26.2, "dx": 14, "dy": 12},
-    {"story": 4, "lon": 34.45, "lat": 31.5, "dx": -12, "dy": 8},
+    {"story": 4, "lon": 34.45, "lat": 31.5, "dx": 2, "dy": -4},
     {"story": 5, "lon": 35.21, "lat": 31.77, "dx": 14, "dy": 2},
     {"story": 6, "lon": 24.5, "lat": 59.8, "dx": 12, "dy": 2},
     {"story": 7, "lon": 33.39, "lat": 47.91, "dx": 12, "dy": 10},
     {"story": 8, "lon": 10.75, "lat": 59.9, "dx": -10, "dy": -8},
     {"story": 9, "lon": -108.47, "lat": 25.57, "dx": 0, "dy": 0},
-    {"story": 10, "lon": 51.39, "lat": 35.69, "dx": -10, "dy": -10},
+    {"story": 10, "lon": 51.39, "lat": 35.69, "dx": 10, "dy": -14},
     {"story": 11, "lon": -121.95, "lat": 37.35, "dx": 0, "dy": 0},
-    {"story": 12, "lon": 6.33, "lat": 4.77, "dx": 0, "dy": 0},
+    {"story": 12, "lon": 6.33, "lat": 4.77, "dx": 3, "dy": -18},
     {"story": 13, "lon": -3.18, "lat": 51.48, "dx": -8, "dy": -4},
 ]
 
