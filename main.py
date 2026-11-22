@@ -1,15 +1,15 @@
-"""Publish the shipped front page for make.fun news-image-20261122.
+"""Ship the finished front page for make.fun news-image-20261122.
 
-The entry is one image: "THE WORLD IN ONE DAY", a newspaper front page
-summing up Sunday 22 November 2026 in 36 verified stories. The artwork
-ships beside this script as ``entry.png``; this program does not draw,
-download, or change anything. It only carries the shipped bytes to the
-output directory, and it refuses to do even that unless the file in front
-of it is byte-for-byte the artwork we packed: right size, right SHA-256,
-a PNG that opens with the PNG signature and closes with an IEND chunk.
+The entry is a single image — "THE WORLD IN ONE DAY", a newspaper front
+page that sums up Sunday 22 November 2026 in 36 dated stories. The artwork
+arrives beside this script as ``entry.png``. This program never draws,
+downloads, or alters a pixel: it only carries the shipped bytes into the
+output directory, and it refuses even that unless the file on disk is
+byte-for-byte the artwork that was packed — right size, right SHA-256,
+opening with the PNG signature and closing with an IEND chunk.
 
-Pure standard library, no network, no clock, no randomness: the same
-input always produces the same output, byte for byte.
+Standard library only, no network, no clock, no randomness: the same input
+always yields the same output, byte for byte.
 """
 
 import hashlib
@@ -17,87 +17,95 @@ import os
 import sys
 from pathlib import Path
 
-# --- The shipped artwork, measured when it was packed ----------------------
-# entry.png: 178222 bytes; SHA-256 verified live with sha256sum
-# before this file was written. If either number ever disagrees, the artwork
-# on disk is not the artwork this program was written to publish.
-ARTWORK_NAME = "entry.png"
-ARTWORK_SIZE = 178222
-ARTWORK_SHA256 = "9bfe8067595a3be65b940354a4d33fa54855fe2609652d7102b54d593701f598"
+# The packed artwork, measured when it was rendered: 178222 bytes, and the
+# SHA-256 below, verified live with sha256sum before this file was written.
+# If either number ever disagrees, the file on disk is not the artwork this
+# program was written to publish.
+EXPECTED_NAME = "entry.png"
+EXPECTED_BYTES = 178222
+EXPECTED_DIGEST = "9bfe8067595a3be65b940354a4d33fa54855fe2609652d7102b54d593701f598"
 
 # A whole PNG opens with this 8-byte signature and ends with an IEND chunk.
-PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
-PNG_IEND = b"IEND"
+PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+IEND_MARK = b"IEND"
 
-DEFAULT_OUTPUT_DIR = "/output"
-
-
-def fail(message):
-    """Abort with a clear error on stderr and a non-zero exit code."""
-    print("main.py: refusing to publish: " + message, file=sys.stderr)
-    raise SystemExit(1)
+FALLBACK_DIR = "/output"
 
 
-def measure(path):
-    """Read a file and return (size, sha256, opens_as_png, closes_as_png)."""
+class Refusal(Exception):
+    """The artwork on disk is not the packed one; publishing is refused."""
+
+
+def digest_of(blob):
+    """SHA-256 hex digest of a byte string."""
+    return hashlib.sha256(blob).hexdigest()
+
+
+def inspect(blob):
+    """Summarise a blob as (size, digest, starts_as_png, ends_as_png)."""
+    starts = blob[:8] == PNG_MAGIC
+    ends = blob[-8:-4] == IEND_MARK if len(blob) >= 12 else False
+    return len(blob), digest_of(blob), starts, ends
+
+
+def load_packed_artwork(path):
+    """Read the shipped file; return its bytes or refuse with the reason."""
     try:
-        data = path.read_bytes()
+        blob = path.read_bytes()
     except OSError as exc:
-        fail("cannot read %s (%s)" % (path, exc))
-    digest = hashlib.sha256(data).hexdigest()
-    opens_ok = data[: len(PNG_SIGNATURE)] == PNG_SIGNATURE
-    closes_ok = data[-8:-4] == PNG_IEND if len(data) >= 12 else False
-    return len(data), digest, opens_ok, closes_ok, data
+        raise Refusal("cannot read %s (%s)" % (path, exc))
+    size, digest, starts, ends = inspect(blob)
+    complaints = []
+    if size != EXPECTED_BYTES:
+        complaints.append("size is %d bytes, expected %d"
+                          % (size, EXPECTED_BYTES))
+    if digest != EXPECTED_DIGEST:
+        complaints.append("sha256 %s is not the packed artwork" % digest)
+    if not starts:
+        complaints.append("does not start with the PNG signature")
+    if not ends:
+        complaints.append("does not end with an IEND chunk")
+    if complaints:
+        raise Refusal("%s: %s" % (path, "; ".join(complaints)))
+    return blob
 
 
-def insist_artwork(path):
-    """Return the artwork bytes, or abort if anything about them is off."""
-    size, digest, opens_ok, closes_ok, data = measure(path)
-    problems = []
-    if size != ARTWORK_SIZE:
-        problems.append("size is %d bytes, expected %d" % (size, ARTWORK_SIZE))
-    if digest != ARTWORK_SHA256:
-        problems.append("sha256 %s does not match the packed artwork" % digest)
-    if not opens_ok:
-        problems.append("does not open with the PNG signature")
-    if not closes_ok:
-        problems.append("does not close with an IEND chunk")
-    if problems:
-        fail("%s: %s" % (path, "; ".join(problems)))
-    return data
-
-
-def output_dir():
+def choose_destination():
     """Where the entry goes: argv[1], MAKEFUN_OUTPUT_DIR, or /output."""
     if len(sys.argv) > 1:
         return Path(sys.argv[1])
-    return Path(os.environ.get("MAKEFUN_OUTPUT_DIR", DEFAULT_OUTPUT_DIR))
+    return Path(os.environ.get("MAKEFUN_OUTPUT_DIR", FALLBACK_DIR))
 
 
-def main():
+def publish():
+    """Verify the shipped artwork, copy it out, then verify the copy."""
     here = Path(__file__).resolve().parent
-    source = here / ARTWORK_NAME
-    data = insist_artwork(source)
+    blob = load_packed_artwork(here / EXPECTED_NAME)
 
-    target_dir = output_dir()
-    target_dir.mkdir(parents=True, exist_ok=True)
-    target = target_dir / ARTWORK_NAME
-    target.write_bytes(data)
+    dest_dir = choose_destination()
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    dest = dest_dir / EXPECTED_NAME
+    dest.write_bytes(blob)
 
-    # Re-measure what we just wrote, and compare the bytes directly:
-    # the copy must be the artwork too, not merely the same size.
-    size, digest, opens_ok, closes_ok, copied = measure(target)
-    if copied != data:
-        fail("output %s differs byte-for-byte from the shipped artwork"
-             % target)
-    if size != ARTWORK_SIZE or digest != ARTWORK_SHA256:
-        fail("output %s failed re-verification (size %d, sha256 %s)"
-             % (target, size, digest))
-    if not (opens_ok and closes_ok):
-        fail("output %s is not a whole PNG" % target)
+    # Re-read what was just written and compare the bytes themselves: the
+    # copy must be the artwork too, not merely the same size.
+    written = dest.read_bytes()
+    if written != blob:
+        raise Refusal("output %s differs byte-for-byte from the shipped artwork"
+                      % dest)
+    size, digest, starts, ends = inspect(written)
+    if size != EXPECTED_BYTES or digest != EXPECTED_DIGEST:
+        raise Refusal("output %s failed re-verification (size %d, sha256 %s)"
+                      % (dest, size, digest))
+    if not (starts and ends):
+        raise Refusal("output %s is not a whole PNG" % dest)
 
-    print("published %s (%d bytes, sha256 %s)" % (target, size, digest))
+    print("published %s (%d bytes, sha256 %s)" % (dest, size, digest))
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        publish()
+    except Refusal as exc:
+        print("main.py: refusing to publish: %s" % exc, file=sys.stderr)
+        raise SystemExit(1)
