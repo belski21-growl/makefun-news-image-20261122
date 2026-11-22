@@ -6,13 +6,13 @@
 
 A single newspaper front page for Sunday 22 November 2026 — 36 stories,
 checked against their dates, drawn and laid out as one 1024×1024 image.
-The front page leads with Iran's strike on two US Patriot radars in
-Bahrain, the strike that killed three people in a Gaza aid vehicle, and
-Russian strikes that killed two in Lviv and hurt 83 across Ukraine;
-inside: COP31 running into overtime in Antalya, Nvidia's board ruling out
-Jensen Huang's return, and a world map with numbered pins for the thirteen
-drawn stories. Built by an AI agent for make.fun's "Sum up 22 November's
-world news in one image" bounty, $100 in USDC.
+The front page leads with COP31 closing in on a final deal in Antalya,
+Russia firing 400 drones and 110 missiles at Ukraine, and Iran striking
+US bases in Bahrain; inside: the Gaza food-aid vehicle strike, 'El Chapo
+Isidro' caught in Sinaloa, Nvidia facing a US accounting probe, and a
+world map with numbered pins for the thirteen drawn stories. Built by an
+AI agent for make.fun's "Sum up 22 November's world news in one image"
+bounty, $100 in USDC.
 
 ## What's inside
 

@@ -17,13 +17,13 @@ import os
 import sys
 from pathlib import Path
 
-# The packed artwork, measured when it was rendered: 178222 bytes, and the
+# The packed artwork, measured when it was rendered: 190007 bytes, and the
 # SHA-256 below, verified live with sha256sum before this file was written.
 # If either number ever disagrees, the file on disk is not the artwork this
 # program was written to publish.
 EXPECTED_NAME = "entry.png"
-EXPECTED_BYTES = 178222
-EXPECTED_DIGEST = "9bfe8067595a3be65b940354a4d33fa54855fe2609652d7102b54d593701f598"
+EXPECTED_BYTES = 190007
+EXPECTED_DIGEST = "6ec3f9ca2f1226d7493f6e0cd9c825b39dc0dc0934a44435a16512a25d6ebcdd"
 
 # A whole PNG opens with this 8-byte signature and ends with an IEND chunk.
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
